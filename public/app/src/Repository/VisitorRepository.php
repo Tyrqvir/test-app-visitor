@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Enum\VisitorEnum;
+use Iterator;
 use Predis\Client;
-use Predis\Collection\Iterator\Keyspace;
 
 class VisitorRepository implements VisitRepositoryInterface
 {
@@ -16,21 +15,24 @@ class VisitorRepository implements VisitRepositoryInterface
 
     public function incrementVisits(string $countryCode): void
     {
-        $countryCodeWithPrefix = VisitorEnum::STORAGE_COUNTRY_CODE_PREFIX->value.$countryCode;
+        $countryCodeWithPrefix = $countryCode;
 
-        if ($this->client->exists($countryCodeWithPrefix)) {
-            $this->client->incr($countryCodeWithPrefix);
-        } else {
-            $this->client->set($countryCodeWithPrefix, 1);
+        $this->client->incr($countryCodeWithPrefix);
+    }
+
+    public function initCountryCodes(array $countryCodes): void
+    {
+        foreach ($countryCodes as $code) {
+            $this->client->set($code, 0);
         }
     }
 
-    public function findAll(): \Iterator
+    public function findValueByCodes(array $countryCodes): Iterator
     {
-        $pattern = VisitorEnum::STORAGE_COUNTRY_CODE_PREFIX->value.'*';
+        $items = $this->client->mget($countryCodes);
 
-        foreach (new Keyspace($this->client, $pattern) as $key) {
-            yield [$key, $this->client->get($key)];
+        foreach ($items as $val) {
+            yield (int) $val;
         }
     }
 }

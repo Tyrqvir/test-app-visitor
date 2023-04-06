@@ -47,3 +47,9 @@ services:
     working_dir: /var/www/app
     depends_on:
       - redis
+
+  load-test:
+    build:
+      context: ./docker/testing
+    depends_on:
+      - nginx

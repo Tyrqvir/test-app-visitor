@@ -5,7 +5,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
   list-visitor-ttl: '%env(int:LIST_VISITOR_TTL)%'
-  list-visitor-cache-key: '%env(string:LIST_VISITOR_KEY_KEY)%'
+  list-visitor-cache-key: '%env(string:LIST_VISITOR_CACHE_KEY)%'
+  country-code-cache-key: '%env(string:COUNTRY_CODE_CACHE_KEY)%'
+  country-code-cache-ttl: '%env(int:COUNTRY_CODE_CACHE_TTL)%'
+  country-code-path: '%kernel.project_dir%/public/countries.yaml'
 
 services:
   # default configuration for services in *this* file

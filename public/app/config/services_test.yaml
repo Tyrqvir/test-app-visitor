@@ -1,0 +1,2 @@
+parameters:
+  country-code-path: '%kernel.project_dir%/tests/_data/countries.yaml'

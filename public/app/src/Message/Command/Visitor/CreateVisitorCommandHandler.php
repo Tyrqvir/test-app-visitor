@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Message\Command\Visitor;
 
 use App\Common\CQRS\Handler\Contracts\CommandHandlerInterface;
 use App\Repository\VisitRepositoryInterface;

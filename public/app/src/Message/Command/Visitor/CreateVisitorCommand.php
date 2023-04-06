@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Message\Command\Visitor;
 
 use App\Common\CQRS\Message\Contracts\CommandMessageInterface;
 use App\Enum\SerializedGroup;
@@ -24,6 +24,6 @@ final class CreateVisitorCommand implements CommandMessageInterface
 
     public function getCountryCode(): string
     {
-        return $this->countryCode;
+        return strtoupper($this->countryCode);
     }
 }
