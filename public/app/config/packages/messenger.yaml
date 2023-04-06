@@ -1,0 +1,37 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            command.bus:
+                middleware:
+                    - validation
+                    - App\Common\CQRS\Messenger\AuditMiddleware
+                    - App\Common\CQRS\Messenger\RetryDisableMiddleware
+
+            event.bus:
+                default_middleware: allow_no_handlers
+                middleware:
+                    - App\Common\CQRS\Messenger\AuditMiddleware
+
+            query.bus: ~
+
+        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+        #failure_transport: failed
+        transports:
+            sync: 'sync://'
+            async: "%env(MESSENGER_TRANSPORT_DSN)%"
+            failed: 'doctrine://default?queue_name=failed'
+
+        routing:
+            App\Common\CQRS\Message\Contracts\CommandMessageInterface: async
+            App\Common\CQRS\Message\Contracts\SyncCommandMessageInterface: sync
+            App\Common\CQRS\Message\Contracts\EventMessageInterface: async
+            App\Common\CQRS\Message\Contracts\QueryMessageInterface: sync
+
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'in-memory://'

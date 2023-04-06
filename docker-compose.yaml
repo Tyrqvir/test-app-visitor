@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    restart: unless-stopped
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public/app:/var/www/app
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./docker/php
+    restart: unless-stopped
+    volumes:
+      - ./public/app:/var/www/app
+    environment:
+      DATABASE_URL: mysql://root:root@mysql:3306/test_app_db
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.0.10
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  worker-visitor:
+    restart: always
+    build:
+      context: ./docker/php-cli
+    entrypoint: [ "php", "bin/console", "messenger:consume", "async", "--limit=100", "--time-limit=3600", "-vv" ]
+    volumes:
+      - ./public/app:/var/www/app
+    working_dir: /var/www/app
+    depends_on:
+      - redis
